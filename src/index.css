@@ -1,196 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-light: #F5F2F0;
-  --color-dark: #171717;
+.masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -30px; /* gutter size offset */
+  width: auto;
+}
+.masonry-grid_column {
+  padding-left: 30px; /* gutter size */
+  background-clip: padding-box;
 }
 
-.accent-text {
-  @apply text-slate-600;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  color: var(--color-dark);
-  background: var(--color-light);
-}
-
-/* only use this to update the style of the auth input fields. use a different class for all other input fields */
-.auth-input-field {
-  @apply w-full px-4 py-3 rounded-container bg-white border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow shadow-sm hover:shadow;
-}
-
-/* only use this to update the style of the auth buttons. use the button class for all other buttons */
-.auth-button {
-  @apply w-full px-4 py-3 rounded bg-primary text-white font-semibold hover:bg-primary-hover transition-colors shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-/* Utility classes for text truncation */
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-4 {
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Typography System */
-.note-text {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 400;
-  line-height: 1.6;
-}
-
-.ui-text {
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-}
-
-.heading {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-}
-
-.button-text {
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-}
-
-/* Prose styles for note content */
-.prose {
-  max-width: none;
-  font-family: 'Poppins', sans-serif;
-  line-height: 1.6;
-}
-
-.prose p {
-  margin-bottom: 1em;
-}
-
-.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  font-family: 'Poppins', sans-serif;
-  font-weight: 600;
-}
-
-.prose ul, .prose ol {
-  margin-bottom: 1em;
-  padding-left: 1.5em;
-}
-
-.prose li {
-  margin-bottom: 0.25em;
-}
-
-/* iOS Spinner Component Styles */
-@layer components {
-  .spinner-blade {
-    @apply absolute h-[20%] w-[8%] bg-current rounded-[1px];
-    animation: spinner-blade 1s linear infinite;
-    will-change: opacity;
-    top: 37%;
-    left: 44%;
-  }
-
-  .spinner-blade:nth-child(1) {
-    transform: rotate(0deg) translateY(-130%);
-    animation-delay: -1.667s;
-  }
-
-  .spinner-blade:nth-child(2) {
-    transform: rotate(30deg) translateY(-130%);
-    animation-delay: -1.583s;
-  }
-
-  .spinner-blade:nth-child(3) {
-    transform: rotate(60deg) translateY(-130%);
-    animation-delay: -1.5s;
-  }
-
-  .spinner-blade:nth-child(4) {
-    transform: rotate(90deg) translateY(-130%);
-    animation-delay: -1.417s;
-  }
-
-  .spinner-blade:nth-child(5) {
-    transform: rotate(120deg) translateY(-130%);
-    animation-delay: -1.333s;
-  }
-
-  .spinner-blade:nth-child(6) {
-    transform: rotate(150deg) translateY(-130%);
-    animation-delay: -1.25s;
-  }
-
-  .spinner-blade:nth-child(7) {
-    transform: rotate(180deg) translateY(-130%);
-    animation-delay: -1.167s;
-  }
-
-  .spinner-blade:nth-child(8) {
-    transform: rotate(210deg) translateY(-130%);
-    animation-delay: -1.083s;
-  }
-
-  .spinner-blade:nth-child(9) {
-    transform: rotate(240deg) translateY(-130%);
-    animation-delay: -1s;
-  }
-
-  .spinner-blade:nth-child(10) {
-    transform: rotate(270deg) translateY(-130%);
-    animation-delay: -0.917s;
-  }
-
-  .spinner-blade:nth-child(11) {
-    transform: rotate(300deg) translateY(-130%);
-    animation-delay: -0.833s;
-  }
-
-  .spinner-blade:nth-child(12) {
-    transform: rotate(330deg) translateY(-130%);
-    animation-delay: -0.75s;
-  }
-}
-
-@keyframes spinner-blade {
-  0% {
-    opacity: 0.85;
-  }
-  50% {
-    opacity: 0.25;
-  }
-  100% {
-    opacity: 0.25;
-  }
+/* Style your items */
+.masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+  margin-bottom: 30px;
 }

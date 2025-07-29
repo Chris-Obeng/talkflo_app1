@@ -1,36 +1,98 @@
 "use client";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
-
+import { Eye, EyeOff, Mic, ArrowLeft, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 export function SignInForm() {
   const { signIn } = useAuthActions();
+  const navigate = useNavigate();
+  const user = useQuery(api.auth.loggedInUser);
   const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Redirect to app if user is already signed in
+  useEffect(() => {
+    if (user) {
+      navigate("/app");
+    }
+  }, [user, navigate]);
+
+  // Reset submitting state if user query changes
+  useEffect(() => {
+    if (user !== undefined) {
+      setSubmitting(false);
+    }
+  }, [user]);
+
+  // Show loading if user query is still loading
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#F5F2F0] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-primary/3 to-orange-100/30 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Back to Home Link */}
+      <motion.a
+        href="/"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        className="absolute top-6 left-6 flex items-center space-x-2 text-gray-600 hover:text-primary transition-colors duration-200 group"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" />
+        <span className="text-sm font-medium">Back to Home</span>
+      </motion.a>
+
+      <div className="w-full max-w-md relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-normal text-gray-800 mb-4 tracking-wide heading">
-            Talkflo
-            <span className="block w-12 h-1 bg-[#FF4500] rounded-full mt-3 mx-auto"></span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-8"
+        >
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-primary/10 p-3 rounded-2xl">
+              <Mic className="w-8 h-8 text-primary" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 heading">
+            Welcome to Talkflo
           </h1>
-          <p className="text-lg text-gray-600 ui-text">
+          <p className="text-gray-600 ui-text">
             Transform your voice into organized notes with AI
           </p>
-        </div>
-
-
+        </motion.div>
 
         {/* Sign In Form */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-container p-8 shadow-lg">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800 heading mb-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-white/20"
+        >
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900 heading mb-2">
               {flow === "signIn" ? "Welcome back" : "Get started"}
             </h2>
             <p className="text-gray-600 ui-text">
@@ -42,13 +104,21 @@ export function SignInForm() {
           </div>
 
           <form
-            className="flex flex-col gap-4"
-            onSubmit={(e) => {
+            className="space-y-6"
+            onSubmit={async (e) => {
               e.preventDefault();
               setSubmitting(true);
-              const formData = new FormData(e.target as HTMLFormElement);
-              formData.set("flow", flow);
-              void signIn("password", formData).catch((error) => {
+
+              try {
+                const formData = new FormData(e.target as HTMLFormElement);
+                formData.set("flow", flow);
+
+                await signIn("password", formData);
+                // Success - the useEffect will handle the redirect
+                toast.success(flow === "signIn" ? "Welcome back!" : "Account created successfully!");
+                // Don't reset submitting here - let the redirect happen
+              } catch (error: any) {
+                console.error("Sign in error:", error);
                 let toastTitle = "";
                 if (error.message.includes("Invalid password")) {
                   toastTitle = "Invalid password. Please try again.";
@@ -60,31 +130,39 @@ export function SignInForm() {
                 }
                 toast.error(toastTitle);
                 setSubmitting(false);
-              });
+              }
             }}
           >
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 ui-text">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-800 mb-3 ui-text">
                 Email address
               </label>
               <input
                 id="email"
-                className="auth-input-field"
+                className="w-full px-4 py-4 rounded-2xl bg-gray-50/50 border border-gray-200/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200 text-gray-900 placeholder-gray-500 backdrop-blur-sm"
                 type="email"
                 name="email"
                 placeholder="Enter your email"
                 required
               />
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2 ui-text">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-800 mb-3 ui-text">
                 Password
               </label>
               <div className="relative">
                 <input
                   id="password"
-                  className="auth-input-field pr-10"
+                  className="w-full px-4 py-4 pr-12 rounded-2xl bg-gray-50/50 border border-gray-200/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200 text-gray-900 placeholder-gray-500 backdrop-blur-sm"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="Enter your password"
@@ -92,7 +170,7 @@ export function SignInForm() {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -102,25 +180,38 @@ export function SignInForm() {
                   )}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
-            <button
-              className="auth-button mt-2"
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-4 px-6 rounded-2xl bg-primary hover:bg-primary-hover text-white font-semibold transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center space-x-2"
               type="submit"
               disabled={submitting}
             >
               {submitting ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  {flow === "signIn" ? "Signing in..." : "Creating account..."}
-                </span>
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>{flow === "signIn" ? "Signing in..." : "Creating account..."}</span>
+                </>
               ) : (
-                flow === "signIn" ? "Sign in" : "Create account"
+                <>
+                  <span>{flow === "signIn" ? "Sign in" : "Create account"}</span>
+                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                </>
               )}
-            </button>
+            </motion.button>
           </form>
 
-          <div className="mt-6 text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-8 text-center"
+          >
             <span className="text-sm text-gray-600 ui-text">
               {flow === "signIn"
                 ? "Don't have an account? "
@@ -128,20 +219,29 @@ export function SignInForm() {
             </span>
             <button
               type="button"
-              className="text-sm text-primary hover:text-primary-hover hover:underline font-medium cursor-pointer ui-text transition-colors"
+              className="text-sm text-primary hover:text-primary-hover font-semibold cursor-pointer ui-text transition-colors duration-200 hover:underline"
               onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
             >
               {flow === "signIn" ? "Sign up" : "Sign in"}
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
+
 
         {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500 ui-text">
-            Start recording your thoughts and let AI organize them beautifully
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7 }}
+          className="text-center mt-8"
+        >
+          <p className="text-xs text-gray-500 ui-text">
+            By signing up, you agree to our{" "}
+            <a href="#" className="text-primary hover:underline">Terms of Service</a>
+            {" "}and{" "}
+            <a href="#" className="text-primary hover:underline">Privacy Policy</a>
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
