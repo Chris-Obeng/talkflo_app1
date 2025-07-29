@@ -1,0 +1,162 @@
+import { useState, useRef } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Header } from "./Header";
+import { RecordingWidget } from "./RecordingWidget";
+import { NotesGrid } from "./NotesGrid";
+import { SearchBar } from "./SearchBar";
+import { FloatingRecordButton } from "./FloatingRecordButton";
+import { FolderTabs } from "./FolderTabs";
+import { ManageFoldersModal } from "./ManageFoldersModal";
+import { SelectionActionBar } from "./SelectionActionBar";
+import { ViewToggle, type ViewMode } from "./ViewToggle";
+import type { Id, Doc } from "../../convex/_generated/dataModel";
+import { toast } from "sonner";
+import { FolderPlus } from "lucide-react";
+import { FloatingUploadButton } from "./FloatingUploadButton";
+import { Spinner } from "./ui/ios-spinner";
+
+export function TalkfloApp() {
+  const [selectedFolder, setSelectedFolder] = useState<Id<"folders"> | "all">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showRecording, setShowRecording] = useState(false);
+  const [showManageFolders, setShowManageFolders] = useState(false);
+  const [selectedNotes, setSelectedNotes] = useState<Id<"notes">[]>([]);
+  const [noteToAppendTo, setNoteToAppendTo] = useState<Doc<"notes"> | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  
+  const recordingWidgetRef = useRef<HTMLDivElement>(null);
+
+  const loggedInUser = useQuery(api.auth.loggedInUser);
+  const folders = useQuery(api.folders.list);
+  const notes = useQuery(api.notes.list, { 
+    folderId: selectedFolder === "all" ? undefined : selectedFolder,
+    search: searchQuery || undefined 
+  });
+  const deleteBatch = useMutation(api.notes.removeBatch);
+
+  const handleSelectNote = (noteId: Id<"notes">) => {
+    setSelectedNotes((prev) =>
+      prev.includes(noteId)
+        ? prev.filter((id) => id !== noteId)
+        : [...prev, noteId]
+    );
+  };
+
+  const handleClearSelection = () => setSelectedNotes([]);
+
+  const handleDeleteSelected = async () => {
+    if (selectedNotes.length === 0) return;
+    try {
+      await deleteBatch({ ids: selectedNotes });
+      toast.success(`${selectedNotes.length} note(s) deleted.`);
+      handleClearSelection();
+    } catch (error) {
+      toast.error("Failed to delete notes.");
+      console.error(error);
+    }
+  };
+
+  const handleStartAppend = (note: Doc<"notes">) => {
+    setNoteToAppendTo(note);
+    setShowRecording(true);
+    // Scroll to recording widget after state update
+    setTimeout(() => {
+      recordingWidgetRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }, 100);
+  };
+
+  const handleStartRecording = () => {
+    setShowRecording(true);
+    // Scroll to recording widget after state update
+    setTimeout(() => {
+      recordingWidgetRef.current?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }, 100);
+  };
+
+  const handleCloseRecordingWidget = () => {
+    setShowRecording(false);
+    setNoteToAppendTo(null);
+  };
+
+  if (loggedInUser === undefined || folders === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F2F0]">
+        <Spinner size="lg" className="text-[#FF4500] w-16 h-16" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#F5F2F0] flex flex-col">
+      <Header user={loggedInUser} />
+      
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-6xl font-normal text-gray-800 mb-4 tracking-wide heading">
+            Talkflo
+            <span className="block w-16 h-1 bg-[#FF4500] rounded-full mt-3 mx-auto"></span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 ui-text">Record your thoughts and let AI transform them into organized notes</p>
+        </div>
+
+        {showRecording && (
+          <div ref={recordingWidgetRef} className="mb-12">
+            <RecordingWidget
+              onClose={handleCloseRecordingWidget}
+              noteToAppendTo={noteToAppendTo ?? undefined}
+            />
+          </div>
+        )}
+
+        <div className="mb-8">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search your notes..." />
+        </div>
+
+        <div className="mb-8">
+          <FolderTabs folders={folders || []} selectedFolder={selectedFolder} onSelectFolder={setSelectedFolder} />
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowManageFolders(true)}
+              className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-medium bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 transition-all shadow-sm hover:shadow-md"
+              title="Manage Folders"
+            >
+              <FolderPlus className="w-4 h-4" />
+            </button>
+            <FloatingUploadButton folderId={selectedFolder === "all" ? undefined : selectedFolder} />
+          </div>
+          <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+        </div>
+
+        <NotesGrid 
+          notes={notes || []} 
+          folders={folders || []}
+          selectedNotes={selectedNotes}
+          onSelectNote={handleSelectNote}
+          onAppendToNote={handleStartAppend}
+          viewMode={viewMode}
+        />
+
+        {selectedNotes.length > 0 ? (
+          <SelectionActionBar count={selectedNotes.length} onClear={handleClearSelection} onDelete={handleDeleteSelected} />
+        ) : (
+          !showRecording && 
+          <FloatingRecordButton onClick={handleStartRecording} />
+        )}
+      </main>
+
+      {showManageFolders && (
+        <ManageFoldersModal folders={folders || []} onClose={() => setShowManageFolders(false)} />
+      )}
+    </div>
+  );
+}
