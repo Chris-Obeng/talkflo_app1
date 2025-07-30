@@ -7,12 +7,14 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { PublishedNotePage } from "./components/PublishedNotePage";
 import { Spinner } from "./components/ui/ios-spinner";
 import LandingPage from "./components/LandingPage";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function App() {
   const user = useQuery(api.auth.loggedInUser);
 
   return (
     <main>
+      <Analytics />
       <Toaster position="top-center" />
       <Router>
         <Routes>
