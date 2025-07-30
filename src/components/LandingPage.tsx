@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   Mic,
   Zap,
@@ -34,10 +33,7 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+    <div
       className="border border-gray-200 rounded-xl overflow-hidden"
     >
       <button
@@ -51,17 +47,14 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({
           <ChevronDown className="w-5 h-5 text-gray-500" />
         )}
       </button>
-      <motion.div
-        initial={false}
-        animate={{ height: isOpen ? 'auto' : 0 }}
-        transition={{ duration: 0.3 }}
-        className="overflow-hidden"
+      <div
+        className={`overflow-hidden ${isOpen ? 'h-auto' : 'h-0'}`}
       >
         <div className="px-6 pb-4 text-gray-600 leading-relaxed">
           {answer}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 
@@ -75,14 +68,12 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+              <div
                 className="flex items-center space-x-2"
               >
                 <Mic className="w-8 h-8 text-primary" />
                 <span className="text-2xl font-bold text-gray-900">Talkflo</span>
-              </motion.div>
+              </div>
             </div>
 
             {/* Desktop Navigation */}
@@ -90,14 +81,12 @@ const LandingPage: React.FC = () => {
               <a href="#features" className="text-gray-600 hover:text-primary transition-colors duration-200">Features</a>
               <a href="#use-cases" className="text-gray-600 hover:text-primary transition-colors duration-200">Use Cases</a>
               <a href="#pricing" className="text-gray-600 hover:text-primary transition-colors duration-200">Pricing</a>
-              <motion.a
+              <a
                 href="/signin"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 className="inline-block bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200"
               >
                 Get Started
-              </motion.a>
+              </a>
             </div>
 
             {/* Mobile menu button */}
@@ -114,10 +103,7 @@ const LandingPage: React.FC = () => {
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+            <div
               className="md:hidden py-4 border-t border-gray-200"
             >
               <div className="flex flex-col space-y-4">
@@ -128,76 +114,58 @@ const LandingPage: React.FC = () => {
                   Get Started
                 </a>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </nav>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-white to-orange-50 px-4 sm:px-6 lg:px-8 pt-16">
         <div className="max-w-5xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
             className="inline-flex items-center space-x-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6"
           >
             <Award className="w-4 h-4" />
             <span>Trusted by 10,000+ professionals worldwide</span>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
+          <h1
             className="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight tracking-tight"
           >
             Transform Your Voice Into
             <span className="text-primary block">Powerful Notes</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+          <p
             className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed"
           >
             Stop typing. Start talking. Talkflo's AI instantly converts your voice into organized, searchable notes that you can share, edit, and act on immediately.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+          <div
             className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8"
           >
-            <motion.a
+            <a
               href="/signin"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
               className="inline-flex items-center space-x-2 bg-primary hover:bg-primary-hover text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-lg hover:shadow-xl"
             >
               <Mic className="w-5 h-5" />
               <span>Start Recording for Free</span>
-            </motion.a>
+            </a>
 
 
-          </motion.div>
+          </div>
 
 
         </div>
 
         {/* Floating elements for visual interest */}
         <div className="absolute top-1/4 left-10 opacity-20">
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3, repeat: Infinity }}
+          <div
             className="w-16 h-16 bg-primary/20 rounded-full"
           />
         </div>
         <div className="absolute bottom-1/4 right-10 opacity-20">
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
+          <div
             className="w-12 h-12 bg-orange-300/30 rounded-full"
           />
         </div>
@@ -206,14 +174,11 @@ const LandingPage: React.FC = () => {
       {/* How It Works Section */}
       <section id="how-it-works" className="py-16 px-4 sm:px-6 lg:px-8 bg-white text-gray-900">
         <div className="max-w-6xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <h2
             className="text-3xl sm:text-4xl font-bold text-center mb-12"
           >
             How It Works
-          </motion.h2>
+          </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-gray-100 p-8 rounded-2xl">
@@ -257,16 +222,13 @@ const LandingPage: React.FC = () => {
               { number: "99.9%", label: "Accuracy Rate" },
               { number: "50+", label: "Languages" }
             ].map((stat, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center"
               >
                 <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">{stat.number}</div>
                 <div className="text-gray-600 font-medium">{stat.label}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -275,10 +237,7 @@ const LandingPage: React.FC = () => {
       {/* Why Talkflo Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -287,7 +246,7 @@ const LandingPage: React.FC = () => {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Experience the future of note-taking with AI-powered voice transcription that understands context and delivers results.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -310,11 +269,8 @@ const LandingPage: React.FC = () => {
                 metric: "Search 1000s of notes in <1s"
               }
             ].map((item, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 group"
               >
                 <div className="text-primary mb-6 flex justify-center group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
@@ -323,7 +279,7 @@ const LandingPage: React.FC = () => {
                 <div className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full inline-block">
                   {item.metric}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -332,10 +288,7 @@ const LandingPage: React.FC = () => {
       {/* Features Section */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -344,7 +297,7 @@ const LandingPage: React.FC = () => {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               From voice recording to organized notes, Talkflo provides all the tools you need to never lose a thought again.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
@@ -403,11 +356,8 @@ const LandingPage: React.FC = () => {
                 color: "bg-gray-50 text-gray-600"
               }
             ].map((feature, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="group p-6 rounded-2xl border border-gray-100 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
               >
                 <div className={`w-16 h-16 rounded-xl ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
@@ -415,7 +365,7 @@ const LandingPage: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -424,14 +374,11 @@ const LandingPage: React.FC = () => {
       {/* Use Cases Section */}
       <section id="use-cases" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <h2
             className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-12"
           >
             Who It's For
-          </motion.h2>
+          </h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -456,17 +403,14 @@ const LandingPage: React.FC = () => {
                 description: "Transcribe meetings and interviews"
               }
             ].map((useCase, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 text-center"
               >
                 <div className="text-primary mb-4 flex justify-center">{useCase.icon}</div>
                 <h3 className="font-semibold text-gray-900 mb-2">{useCase.title}</h3>
                 <p className="text-gray-600 text-sm">{useCase.description}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -475,23 +419,17 @@ const LandingPage: React.FC = () => {
       {/* Pricing Section */}
       <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <h2
             className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-4"
           >
             Simple, Transparent Pricing
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+          <p
             className="text-center text-gray-600 mb-12 max-w-2xl mx-auto"
           >
             Start free, upgrade when you're ready. No hidden fees, cancel anytime.
-          </motion.p>
+          </p>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
@@ -511,7 +449,7 @@ const LandingPage: React.FC = () => {
               },
               {
                 name: "Pro",
-                price: "$12",
+                price: "$9",
                 period: "per month",
                 description: "For individuals and professionals",
                 features: [
@@ -523,12 +461,12 @@ const LandingPage: React.FC = () => {
                   "Custom templates"
                 ],
                 cta: "Start Free Trial",
-                popular: true
+                popular: false
               },
               {
-                name: "Team",
-                price: "$24",
-                period: "per user/month",
+                name: "Annual",
+                price: "$80",
+                period: "per user/year",
                 description: "For teams and organizations",
                 features: [
                   "Everything in Pro",
@@ -539,14 +477,11 @@ const LandingPage: React.FC = () => {
                   "Dedicated support"
                 ],
                 cta: "Contact Sales",
-                popular: false
+                popular: true
               }
             ].map((plan, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 className={`relative bg-white rounded-2xl shadow-lg p-8 ${plan.popular ? 'ring-2 ring-primary scale-105' : 'border border-gray-200'
                   }`}
               >
@@ -576,18 +511,16 @@ const LandingPage: React.FC = () => {
                   ))}
                 </ul>
 
-                <motion.a
+                <a
                   href={plan.name === 'Team' ? '#contact' : '/signin'}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   className={`inline-block w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 text-center ${plan.popular
                     ? 'bg-primary hover:bg-primary-hover text-white'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
                     }`}
                 >
                   {plan.cta}
-                </motion.a>
-              </motion.div>
+                </a>
+              </div>
             ))}
           </div>
         </div>
@@ -596,10 +529,7 @@ const LandingPage: React.FC = () => {
       {/* Social Proof Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -612,7 +542,7 @@ const LandingPage: React.FC = () => {
               ))}
             </div>
             <p className="text-2xl font-bold text-gray-900">4.9/5 from 2,000+ reviews</p>
-          </motion.div>
+          </div>
 
           <Masonry
             breakpointCols={{
@@ -696,11 +626,8 @@ const LandingPage: React.FC = () => {
                 avatar: 'https://i.pravatar.cc/150?u=tomwilson',
               },
             ].map((testimonial, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.05 }}
                 className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200/80"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -720,15 +647,12 @@ const LandingPage: React.FC = () => {
                   </div>
                 )}
                 <p className="text-gray-700 leading-relaxed">{testimonial.quote}</p>
-              </motion.div>
+              </div>
             ))}
           </Masonry>
 
           {/* Company Logos */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <div
             className="text-center mt-16"
           >
             <p className="text-gray-500 mb-8">Trusted by teams at</p>
@@ -739,17 +663,14 @@ const LandingPage: React.FC = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* FAQ Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -758,7 +679,7 @@ const LandingPage: React.FC = () => {
             <p className="text-xl text-gray-600">
               Everything you need to know about Talkflo
             </p>
-          </motion.div>
+          </div>
 
           <div className="space-y-4">
             {[
@@ -806,26 +727,18 @@ const LandingPage: React.FC = () => {
       {/* Final CTA Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-primary text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <h2
             className="text-3xl sm:text-4xl font-bold mb-6"
           >
             Get Started—Risk Free
-          </motion.h2>
+          </h2>
 
-          <motion.a
+          <a
             href="/signin"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
             className="inline-block bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary"
           >
             Start Your 7-Day Free Trial
-          </motion.a>
+          </a>
         </div>
       </section>
 
