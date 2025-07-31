@@ -32,7 +32,7 @@ export function EditableContent({ initialContent, onSave }: EditableContentProps
       value={content}
       onChange={(e) => setContent(e.target.value)}
       onBlur={handleBlur}
-      className="w-full bg-transparent text-gray-300 focus:outline-none resize-none text-base leading-relaxed note-text"
+      className="w-full bg-transparent text-gray-300 focus:outline-none resize-none text-sm md:text-base leading-relaxed note-text"
       placeholder="Start writing your note..."
     />
   );

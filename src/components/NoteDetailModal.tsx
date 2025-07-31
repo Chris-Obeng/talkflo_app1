@@ -162,8 +162,8 @@ export function NoteDetailModal({ note, onClose, onAppend }: NoteDetailModalProp
       <div className={`min-h-full flex items-center justify-center ${isExpanded ? 'p-0' : 'p-4'}`}>
         <div ref={modalRef} className={`bg-[#343F51] shadow-xl text-white animate-in fade-in-0 zoom-in-95 transition-all duration-300 ${
           isExpanded 
-            ? 'w-full h-full min-h-screen p-8' 
-            : 'max-w-2xl w-full rounded-lg p-8 my-8'
+            ? 'w-full h-full min-h-screen p-4 md:p-8'
+            : 'max-w-2xl w-full rounded-lg p-4 md:p-8 my-8'
         }`}>
         <div className="flex items-center justify-between mb-4">
           <div className="w-10">

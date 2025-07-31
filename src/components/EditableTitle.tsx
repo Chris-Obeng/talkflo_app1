@@ -34,10 +34,10 @@ export function EditableTitle({ initialTitle, onSave }: EditableTitleProps) {
           onChange={(e) => setTitle(e.target.value)}
           onBlur={handleSave}
           onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-          className="text-4xl font-bold text-white bg-transparent border-none outline-none w-full heading"
+          className="text-2xl md:text-4xl font-bold text-white bg-transparent border-none outline-none w-full heading"
         />
       ) : (
-        <h1 className="text-4xl font-bold text-white heading">{title}</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-white heading">{title}</h1>
       )}
     </div>
   );
