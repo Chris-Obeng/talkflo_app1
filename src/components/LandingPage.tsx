@@ -737,7 +737,7 @@ const LandingPage: React.FC = () => {
             href="/signin"
             className="inline-block bg-white text-primary hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary"
           >
-            Start Your 7-Day Free Trial
+            Get started for free
           </a>
         </div>
       </section>

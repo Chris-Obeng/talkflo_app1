@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#FF4500",
-        "primary-hover": "#E63E00",
+        primary: "#F97316",
+        "primary-hover": "#EA580C",
         secondary: "#6B7280",
       },
       spacing: {
