@@ -369,10 +369,10 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
           {/* Wave Visualizer */}
           {(isRecording || isPaused) && !isProcessing && (
             <div className="flex items-end justify-center space-x-[0.5px] sm:space-x-[1px] h-12 sm:h-20 sm:mb-3">
-              {frequencyData.slice(0, isMobile ? 120 : 150).map((amplitude, index) => {
+              {frequencyData.slice(0, 150).map((amplitude, index) => {
                 // Responsive height scaling
                 const baseHeight = 4;
-                const maxHeight = isMobile ? 40 : 65;
+                const maxHeight = 65;
                 const height = baseHeight + (amplitude * (maxHeight - baseHeight));
                 const opacity = isPaused ? 0.5 : Math.max(0.7, amplitude + 0.2);
 
@@ -381,7 +381,7 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
                     key={index}
                     className="bg-white transition-all duration-100 ease-out"
                     style={{
-                      width: isMobile ? '1px' : '1.5px',
+                      width: '1.5px',
                       height: `${height}px`,
                       opacity: opacity,
                       transform: `scaleY(${isPaused ? 0.8 : 1})`,
