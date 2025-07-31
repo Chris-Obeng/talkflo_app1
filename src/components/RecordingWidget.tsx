@@ -97,30 +97,31 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
       analyserRef.current.getByteFrequencyData(dataArray);
       const overallVolume = dataArray.reduce((a, b) => a + b) / dataArray.length / 255;
 
-      // Update frequency data for a more dynamic, wavy visualizer
-      const newFrequencyData = [];
-      const numBars = 150;
-      const step = Math.floor(dataArray.length / numBars);
+      setFrequencyData(prevFrequencyData => {
+        const newFrequencyData = [];
+        const numBars = 150;
+        const step = Math.floor(dataArray.length / numBars);
 
-      for (let i = 0; i < numBars; i++) {
-        const index = i * step;
-        const value = dataArray[index] / 255;
+        for (let i = 0; i < numBars; i++) {
+          const index = i * step;
+          const value = dataArray[index] / 255;
 
-        // Smoothed base value
-        const smoothedValue = (frequencyData[i] || 0) * 0.7 + value * 0.3;
+          // Smoothed base value
+          const smoothedValue = (prevFrequencyData[i] || 0) * 0.7 + value * 0.3;
 
-        // Create a complex, traveling wave effect
-        const time = Date.now() * 0.003;
-        const wave1 = Math.sin(i * 0.1 - time) * 0.1;
-        const wave2 = Math.sin(i * 0.05 + time * 0.5) * 0.05;
+          // Create a complex, traveling wave effect
+          const time = Date.now() * 0.003;
+          const wave1 = Math.sin(i * 0.1 - time) * 0.1;
+          const wave2 = Math.sin(i * 0.05 + time * 0.5) * 0.05;
 
-        // Make wave intensity dependent on overall volume
-        const waveIntensity = Math.pow(overallVolume, 2);
+          // Make wave intensity dependent on overall volume
+          const waveIntensity = Math.pow(overallVolume, 2);
 
-        const finalValue = smoothedValue + (wave1 + wave2) * waveIntensity;
-        newFrequencyData.push(Math.min(1, Math.max(0.02, finalValue)));
-      }
-      setFrequencyData(newFrequencyData);
+          const finalValue = smoothedValue + (wave1 + wave2) * waveIntensity;
+          newFrequencyData.push(Math.min(1, Math.max(0.02, finalValue)));
+        }
+        return newFrequencyData;
+      });
 
       // Continue animation while shouldAnimate is true
       if (shouldAnimateRef.current) {
