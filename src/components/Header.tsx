@@ -35,8 +35,11 @@ export function Header({ user }: HeaderProps) {
           </button>
 
           {isProfileOpen && (
-            <div 
-              className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 p-2"
+            <div
+              className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-screen max-w-xs sm:w-64 bg-white rounded-lg shadow-xl border border-gray-100 p-2"
+              style={{
+                transform: 'translateX(calc(-50% + 20px)) sm:translateX(0)',
+              }}
             >
               <div className="p-2 border-b mb-2">
                 <p className="font-semibold text-gray-800 truncate ui-text">{user?.name || 'User'}</p>

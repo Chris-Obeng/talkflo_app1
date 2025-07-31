@@ -33,11 +33,11 @@ export function NoteCard({ note, folderName, isSelected, onSelect, onClick }: No
         isSelected ? 'ring-2 ring-slate-700 border-slate-700' : ''
       }`}
     >
-      <div className="p-6 flex flex-col flex-grow">
+      <div className="p-4 sm:p-6 flex flex-col flex-grow">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 pr-8">
-            <h3 className="font-semibold text-gray-800 line-clamp-2 mb-2 heading">
+            <h3 className="font-semibold text-gray-800 line-clamp-2 mb-2 heading text-base sm:text-lg">
               {note.title}
             </h3>
             <div className="flex items-center space-x-2 text-xs text-gray-500 ui-text">
@@ -58,7 +58,7 @@ export function NoteCard({ note, folderName, isSelected, onSelect, onClick }: No
         </div>
 
         {/* Content Preview */}
-        <p className="text-gray-600 text-sm line-clamp-4 mb-4 flex-grow note-text">
+        <p className="text-gray-600 text-xs sm:text-sm line-clamp-4 mb-4 flex-grow note-text">
           {note.content}
         </p>
 

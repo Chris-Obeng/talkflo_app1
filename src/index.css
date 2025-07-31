@@ -15,6 +15,19 @@
 }
 
 /* Style your items */
-.masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+.masonry-grid_column > div {
+  /* change div to reference your elements you put in <Masonry> */
   margin-bottom: 30px;
+}
+
+@media (max-width: 700px) {
+  .masonry-grid {
+    margin-left: -15px; /* gutter size offset */
+  }
+  .masonry-grid_column {
+    padding-left: 15px; /* gutter size */
+  }
+  .masonry-grid_column > div {
+    margin-bottom: 15px;
+  }
 }

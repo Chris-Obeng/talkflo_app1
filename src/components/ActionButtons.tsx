@@ -15,7 +15,7 @@ export function ActionButtons({ onDelete, onCopy, onAppend, onPublish, onShare, 
       <div className="mt-8 flex justify-center">
         <button 
           onClick={onAppend}
-          className="inline-flex items-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-[#FF4500] to-[#FF6B35] hover:from-[#E63E00] hover:to-[#FF5722] text-white rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 button-text"
+          className="inline-flex items-center space-x-2 px-6 py-2.5 bg-[#C2410C] hover:bg-[#9A3412] text-white rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 button-text"
         >
           <Mic className="w-4 h-4" />
           <span>Append</span>

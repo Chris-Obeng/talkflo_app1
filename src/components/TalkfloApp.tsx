@@ -87,23 +87,25 @@ export function TalkfloApp() {
 
   if (loggedInUser === undefined || folders === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F2F0]">
-        <Spinner size="lg" className="text-[#FF4500] w-16 h-16" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Spinner size="lg" className="text-primary w-16 h-16" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F2F0] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header user={loggedInUser} />
       
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-normal text-gray-800 mb-4 tracking-wide heading">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-normal text-gray-800 mb-3 sm:mb-4 tracking-wide heading">
             Talkflo
-            <span className="block w-16 h-1 bg-[#FF4500] rounded-full mt-3 mx-auto"></span>
+            <span className="block w-12 sm:w-16 h-1 bg-primary rounded-full mt-2 sm:mt-3 mx-auto"></span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 ui-text">Record your thoughts and let AI transform them into organized notes</p>
+          <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 ui-text">
+            Record your thoughts and let AI transform them into organized notes
+          </p>
         </div>
 
         {showRecording && (
@@ -123,20 +125,6 @@ export function TalkfloApp() {
           <FolderTabs folders={folders || []} selectedFolder={selectedFolder} onSelectFolder={setSelectedFolder} />
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowManageFolders(true)}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-medium bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 transition-all shadow-sm hover:shadow-md"
-              title="Manage Folders"
-            >
-              <FolderPlus className="w-4 h-4" />
-            </button>
-            <FloatingUploadButton folderId={selectedFolder === "all" ? undefined : selectedFolder} />
-          </div>
-          <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-        </div>
-
         <NotesGrid 
           notes={notes || []} 
           folders={folders || []}
@@ -144,6 +132,21 @@ export function TalkfloApp() {
           onSelectNote={handleSelectNote}
           onAppendToNote={handleStartAppend}
           viewMode={viewMode}
+          actionButtons={
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowManageFolders(true)}
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-medium bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 transition-all shadow-sm hover:shadow-md"
+                  title="Manage Folders"
+                >
+                  <FolderPlus className="w-4 h-4" />
+                </button>
+                <FloatingUploadButton folderId={selectedFolder === "all" ? undefined : selectedFolder} />
+              </div>
+              <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+            </div>
+          }
         />
 
         {selectedNotes.length > 0 ? (

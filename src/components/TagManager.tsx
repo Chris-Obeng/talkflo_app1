@@ -28,7 +28,6 @@ export function TagManager({ initialTags, onUpdateTags }: TagManagerProps) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-sm font-semibold text-gray-400 mb-3">Tags</h3>
       <div className="flex flex-wrap gap-2 items-center">
         {tags.map(tag => (
           <div key={tag} className="flex items-center bg-gray-700 rounded-full px-3 py-1 text-sm">
