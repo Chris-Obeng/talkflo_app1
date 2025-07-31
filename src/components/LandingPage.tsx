@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Mic,
   Zap,
@@ -60,6 +60,27 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({
 
 const LandingPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const useCases = [
+    'classes',
+    'meetings',
+    'interviews',
+    'lectures',
+    'brainstorms',
+    'therapy sessions',
+    'coaching calls',
+    'journal entries',
+    'research notes',
+    'creative writing',
+  ];
+  const [currentUseCase, setCurrentUseCase] = useState(0);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentUseCase((prevUseCase) => (prevUseCase + 1) % useCases.length);
+    }, 2000); // Change every 2 seconds
+
+    return () => clearInterval(intervalId);
+  }, [useCases.length]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -128,17 +149,17 @@ const LandingPage: React.FC = () => {
             <span>Trusted by 10,000+ professionals worldwide</span>
           </div>
 
-          <h1
-            className="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight tracking-tight"
-          >
-            Transform Your Voice Into
-            <span className="text-primary block">Powerful Notes</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight tracking-tight inline-block text-left">
+            <span className="block">Fed up with taking notes</span>
+            <span className="block">
+              during{' '}
+              <span className="text-primary transition-all duration-300 ease-in-out">
+                {useCases[currentUseCase]}?
+              </span>
+            </span>
           </h1>
-
-          <p
-            className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed"
-          >
-            Stop typing. Start talking. Talkflo's AI instantly converts your voice into organized, searchable notes that you can share, edit, and act on immediately.
+          <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Talkflo's AI instantly converts your voice into organized, searchable notes that you can share, edit, and act on immediately.
           </p>
 
           <div
@@ -371,50 +392,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Use Cases Section */}
-      <section id="use-cases" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-12"
-          >
-            Who It's For
-          </h2>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: <Briefcase className="w-8 h-8" />,
-                title: "Entrepreneurs & Founders",
-                description: "Capture business ideas on the go"
-              },
-              {
-                icon: <PenTool className="w-8 h-8" />,
-                title: "Writers & Creators",
-                description: "Turn spoken thoughts into written content"
-              },
-              {
-                icon: <GraduationCap className="w-8 h-8" />,
-                title: "Students & Researchers",
-                description: "Record lectures and research notes"
-              },
-              {
-                icon: <Users className="w-8 h-8" />,
-                title: "Teams & Podcasters",
-                description: "Transcribe meetings and interviews"
-              }
-            ].map((useCase, index) => (
-              <div
-                key={index}
-                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 text-center"
-              >
-                <div className="text-primary mb-4 flex justify-center">{useCase.icon}</div>
-                <h3 className="font-semibold text-gray-900 mb-2">{useCase.title}</h3>
-                <p className="text-gray-600 text-sm">{useCase.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Pricing Section */}
       <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
@@ -533,7 +510,7 @@ const LandingPage: React.FC = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Loved by Professionals Worldwide
+              Loved by people worldwide
             </h2>
             <p className="text-xl text-gray-600 mb-8">Join thousands who've transformed their note-taking workflow</p>
             <div className="flex items-center justify-center space-x-2 mb-4">

@@ -43,6 +43,14 @@ const applicationTables = {
     name: v.string(),
   })
     .index("by_user", ["userId"]),
+  
+  userSettings: defineTable({
+    userId: v.id("users"),
+    inputLanguage: v.optional(v.string()),
+    outputLanguage: v.optional(v.string()),
+    writingStyle: v.optional(v.string()),
+    writingLength: v.optional(v.union(v.literal("short"), v.literal("medium"), v.literal("long"))),
+  }).index("by_user", ["userId"]),
 };
 
 export default defineSchema({

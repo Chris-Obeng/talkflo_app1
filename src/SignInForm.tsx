@@ -2,7 +2,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mic, ArrowLeft, Check } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "convex/react";
@@ -71,17 +71,6 @@ export function SignInForm() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-primary/10 p-3 rounded-2xl">
-              <Mic className="w-8 h-8 text-primary" />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 heading">
-            Welcome to Talkflo
-          </h1>
-          <p className="text-gray-600 ui-text">
-            Transform your voice into organized notes with AI
-          </p>
         </motion.div>
 
         {/* Sign In Form */}
@@ -228,20 +217,6 @@ export function SignInForm() {
         </motion.div>
 
 
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-          className="text-center mt-8"
-        >
-          <p className="text-xs text-gray-500 ui-text">
-            By signing up, you agree to our{" "}
-            <a href="#" className="text-primary hover:underline">Terms of Service</a>
-            {" "}and{" "}
-            <a href="#" className="text-primary hover:underline">Privacy Policy</a>
-          </p>
-        </motion.div>
       </div>
     </div>
   );

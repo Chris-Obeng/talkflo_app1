@@ -29,7 +29,7 @@ export function NoteCard({ note, folderName, isSelected, onSelect, onClick }: No
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border group relative flex flex-col ${
+      className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border group relative flex flex-col ${
         isSelected ? 'ring-2 ring-slate-700 border-slate-700' : ''
       }`}
     >

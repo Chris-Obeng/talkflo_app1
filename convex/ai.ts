@@ -1,8 +1,8 @@
 import { action, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
+import { internal, api } from "./_generated/api";
 import OpenAI from "openai";
-import { stylePrompts, defaultPrompt } from "./prompts";
+import { stylePrompts, defaultPrompt, baseSystemPrompt } from "./prompts";
 
 const openai = new OpenAI({
   baseURL: process.env.CONVEX_OPENAI_BASE_URL,
@@ -18,7 +18,11 @@ export const generateContent = action({
     await ctx.runMutation(internal.notes.internalSetStatus, { id: args.noteId, status: "generating" });
 
     try {
-      const note = await ctx.runQuery(internal.notes.internalGet, { id: args.noteId });
+      const [note, settings] = await Promise.all([
+        ctx.runQuery(internal.notes.internalGet, { id: args.noteId }),
+        ctx.runQuery(api.settings.get),
+      ]);
+
       if (!note) {
         throw new Error("Note not found");
       }
@@ -30,7 +34,12 @@ export const generateContent = action({
 
       const promptDetails = stylePrompts[args.style] || defaultPrompt;
       const systemContent = promptDetails.system;
-      const userContent = promptDetails.user(transcript, args.style);
+      const userContent = promptDetails.user(
+        transcript,
+        args.style.replace(/"/g, ''),
+        settings?.outputLanguage,
+        settings?.writingStyle
+      );
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -75,7 +84,11 @@ export const rewriteContent = action({
     await ctx.runMutation(internal.notes.internalSetStatus, { id: args.noteId, status: "generating" });
 
     try {
-      const note = await ctx.runQuery(internal.notes.internalGet, { id: args.noteId });
+      const [note, settings] = await Promise.all([
+        ctx.runQuery(internal.notes.internalGet, { id: args.noteId }),
+        ctx.runQuery(api.settings.get),
+      ]);
+
       if (!note) {
         throw new Error("Note not found");
       }
@@ -85,8 +98,15 @@ export const rewriteContent = action({
         throw new Error("Note has no original transcript to rewrite from.");
       }
 
-      const systemContent = "You are a helpful writing assistant. Your task is to rewrite the provided transcript according to the user's specific instructions. Maintain the core information while adapting the style, tone, or format as requested. The output should be clean, well-formatted plain text. Do not use markdown syntax like # or *.";
-      const userContent = `Please rewrite the following transcript according to these instructions: "${args.instructions}"\n\nOriginal transcript:\n---\n${transcript}`;
+      const systemContent = baseSystemPrompt;
+      let userContent = `Rewrite the following transcript based on these instructions: ${args.instructions.replace(/"/g, '')}\n`;
+      if (settings?.outputLanguage) {
+        userContent += `The output language must be ${settings.outputLanguage}.\n`;
+      }
+      if (settings?.writingStyle) {
+        userContent += `The writing style should be: ${settings.writingStyle}.\n`;
+      }
+      userContent += `\n---\n\n${transcript}`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",

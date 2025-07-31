@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { RecordingWidget } from "./RecordingWidget";
@@ -124,22 +125,31 @@ export function TalkfloApp() {
 
             {isProfileOpen && (
               <div
-                className="absolute left-0 mt-2 w-screen max-w-xs sm:w-64 bg-white rounded-lg shadow-xl border border-gray-100 p-2 z-50"
+                className="absolute left-0 mt-2 w-screen max-w-xs sm:w-64 bg-white rounded-2xl shadow-lg border border-gray-100 p-2 z-50"
                 style={{
                   transform: 'translateX(calc(-50% + 20px)) sm:translateX(0)',
                 }}
               >
-                <div className="p-2 border-b mb-2">
+                <div className="p-3 border-b border-gray-200 mb-2">
                   <p className="font-semibold text-gray-800 truncate ui-text">{loggedInUser?.name || 'User'}</p>
                   <p className="text-sm text-gray-500 truncate ui-text">{loggedInUser?.email}</p>
                 </div>
                 <div className="p-1">
-                  <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md button-text">
+                  <Link
+                    to="/settings"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg button-text"
+                  >
                     <Settings className="w-5 h-5 text-gray-500" />
                     <span>Settings</span>
-                  </button>
+                  </Link>
                 </div>
                 <div className="p-1">
+                  <button className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg button-text">
+                    <User className="w-5 h-5 text-gray-500" />
+                    <span>Subscription</span>
+                  </button>
+                </div>
+                <div className="p-1 mt-1">
                   <SignOutButton />
                 </div>
               </div>
@@ -167,6 +177,7 @@ export function TalkfloApp() {
           <div className="mb-8 sm:mb-12">
             <RecordingWidget
               onClose={handleCloseRecordingWidget}
+              folderId={selectedFolder === "all" ? undefined : selectedFolder}
               noteToAppendTo={noteToAppendTo ?? undefined}
             />
           </div>

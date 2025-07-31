@@ -21,6 +21,7 @@ import type * as notes from "../notes.js";
 import type * as prompts from "../prompts.js";
 import type * as recordings from "../recordings.js";
 import type * as router from "../router.js";
+import type * as settings from "../settings.js";
 import type * as storage from "../storage.js";
 
 /**
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   prompts: typeof prompts;
   recordings: typeof recordings;
   router: typeof router;
+  settings: typeof settings;
   storage: typeof storage;
 }>;
 export declare const api: FilterApi<
