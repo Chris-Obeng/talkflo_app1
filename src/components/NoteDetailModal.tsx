@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { X, ArrowUpRight, ChevronDown, ChevronUp, Minimize2 } from "lucide-react";
+import { X, ArrowUpRight, ChevronDown, ChevronUp, Minimize2, Edit3 } from "lucide-react";
 import { toast } from "sonner";
 import { EditableTitle } from "./EditableTitle";
 import { EditableContent } from "./EditableContent";
 import { ActionButtons } from "./ActionButtons";
 import { TagManager } from "./TagManager";
 import type { Doc } from "../../convex/_generated/dataModel";
-import { CreateWithAIDropdown } from "./CreateWithAIDropdown";
+
 
 interface NoteDetailModalProps {
   note: Doc<"notes">;
@@ -20,12 +20,15 @@ export function NoteDetailModal({ note, onClose, onAppend }: NoteDetailModalProp
   const modalRef = useRef<HTMLDivElement>(null);
   const [showTranscript, setShowTranscript] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const isGenerating = note.status === 'generating';
+  const [showRewriteInput, setShowRewriteInput] = useState(false);
+  const [rewriteInstructions, setRewriteInstructions] = useState("");
+  const [isRewriting, setIsRewriting] = useState(false);
+  const isGenerating = note.status === 'generating' || isRewriting;
   
   const updateNote = useMutation(api.notes.update);
   const deleteNote = useMutation(api.notes.remove);
   const updatePublishStatus = useMutation(api.notes.updatePublishStatus);
-  const generateContent = useAction(api.ai.generateContent);
+  const rewriteContent = useAction(api.ai.rewriteContent);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -126,17 +129,29 @@ export function NoteDetailModal({ note, onClose, onAppend }: NoteDetailModalProp
     }
   };
 
-  const handleCreateWithAI = async (style: string) => {
-    if (!note.transcript && !note.content) {
-      toast.error("This note has no content or transcript to generate from.");
+
+
+  const handleRewrite = async () => {
+    if (!note.transcript) {
+      toast.error("This note has no original transcript to rewrite from.");
       return;
     }
+    if (!rewriteInstructions.trim()) {
+      toast.error("Please provide instructions for how to rewrite the note.");
+      return;
+    }
+    
+    setIsRewriting(true);
     try {
-      await generateContent({ noteId: note._id, style });
-      toast.success(`Content generated for: ${style}`);
+      await rewriteContent({ noteId: note._id, instructions: rewriteInstructions });
+      toast.success("Note rewritten successfully!");
+      setShowRewriteInput(false);
+      setRewriteInstructions("");
     } catch (error) {
-      toast.error("AI failed to generate content.");
+      toast.error("AI failed to rewrite content.");
       console.error(error);
+    } finally {
+      setIsRewriting(false);
     }
   };
 
@@ -152,9 +167,16 @@ export function NoteDetailModal({ note, onClose, onAppend }: NoteDetailModalProp
         }`}>
         <div className="flex items-center justify-between mb-4">
           <div className="w-10">
-            <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full"><X className="w-6 h-6" /></button>
+            {!isExpanded && note.transcript && !showRewriteInput && (
+              <button
+                onClick={() => setShowRewriteInput(true)}
+                className="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded-full transition-colors"
+                title="Rewrite with AI"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            )}
           </div>
-          {!isExpanded && <CreateWithAIDropdown onSelectStyle={handleCreateWithAI} />}
           {isExpanded && <div className="flex-1" />}
           <div className="w-10 text-right">
             <button onClick={() => setIsExpanded(!isExpanded)} className="p-2 text-gray-400 hover:text-white transition-colors rounded-full">
@@ -162,6 +184,54 @@ export function NoteDetailModal({ note, onClose, onAppend }: NoteDetailModalProp
             </button>
           </div>
         </div>
+        
+        {/* Rewrite Input Interface */}
+        {showRewriteInput && !isGenerating && (
+          <div className={`mb-6 p-4 bg-gray-800 rounded-lg border border-blue-500 ${isExpanded ? 'max-w-2xl mx-auto' : ''}`}>
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                How would you like to rewrite this note?
+              </label>
+              <textarea
+                value={rewriteInstructions}
+                onChange={(e) => setRewriteInstructions(e.target.value)}
+                placeholder="e.g., Make it more formal, convert to bullet points, simplify the language..."
+                className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={3}
+                disabled={isRewriting}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setShowRewriteInput(false);
+                  setRewriteInstructions("");
+                }}
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                disabled={isRewriting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRewrite}
+                disabled={!rewriteInstructions.trim() || isRewriting}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-md transition-colors"
+              >
+                {isRewriting ? "Rewriting..." : "Rewrite"}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Rewriting Status */}
+        {isGenerating && (
+          <div className={`mb-6 p-4 bg-blue-900/20 rounded-lg border border-blue-500 ${isExpanded ? 'max-w-2xl mx-auto' : ''}`}>
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+              <span className="text-blue-300 text-sm">AI is rewriting your note...</span>
+            </div>
+          </div>
+        )}
         
         {/* Content Container - Centered and beautifully spaced */}
         <div className={`mx-auto ${isExpanded ? 'max-w-4xl' : 'w-full'}`}>
@@ -174,16 +244,23 @@ export function NoteDetailModal({ note, onClose, onAppend }: NoteDetailModalProp
           
           <div className="mb-8">
             {isGenerating ? (
-              <div className="space-y-4 animate-pulse p-4 max-w-3xl mx-auto">
-                <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto"></div>
-                <div className="h-4 bg-gray-700 rounded mx-auto"></div>
-                <div className="h-4 bg-gray-700 rounded mx-auto"></div>
-                <div className="h-4 bg-gray-700 rounded w-5/6 mx-auto"></div>
-                <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto"></div>
+              <div className="max-w-3xl mx-auto">
+                <div className="space-y-4 animate-pulse p-4">
+                  <div className="h-4 bg-gray-700 rounded w-3/4 mx-auto"></div>
+                  <div className="h-4 bg-gray-700 rounded mx-auto"></div>
+                  <div className="h-4 bg-gray-700 rounded mx-auto"></div>
+                  <div className="h-4 bg-gray-700 rounded w-5/6 mx-auto"></div>
+                  <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto"></div>
+                </div>
+                {isRewriting && (
+                  <div className="text-center mt-4">
+                    <p className="text-blue-300 text-sm">Rewriting content based on your instructions...</p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="max-w-3xl mx-auto">
-                <EditableContent initialContent={note.content} onSave={handleSaveContent} />
+                <EditableContent key={note._id + note.content} initialContent={note.content} onSave={handleSaveContent} />
               </div>
             )}
             

@@ -279,7 +279,7 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
 
   const WaveVisualizer = () => {
     return (
-      <div className="flex items-end justify-center space-x-1 h-16 mb-6">
+      <div className="flex items-end justify-center space-x-1 h-12 mb-4">
         {frequencyData.map((amplitude, index) => {
           const height = Math.max(4, amplitude * 60); // Min height 4px, max 60px
           const opacity = isPaused ? 0.3 : Math.max(0.3, amplitude);
@@ -336,7 +336,7 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8">
+    <div className="flex flex-col items-center justify-center p-4">
       {/* Confirmation Dialog */}
       {showCancelConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -360,26 +360,26 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
         </div>
       )}
 
-      <div className="bg-white rounded-3xl shadow-xl p-12 max-w-md w-full text-center">
+      <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md w-full text-center">
         <div className="flex justify-end mb-4">
           <button onClick={handleCancelClick} className="text-gray-400 hover:text-gray-600 transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-6">
           {isProcessing && (
-            <div className="w-32 h-32 mx-auto mb-6 flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center">
               {recordingStatus?.status === 'completed' ? (
-                <CheckCircle className="w-16 h-16 text-green-500" />
+                <CheckCircle className="w-12 h-12 text-green-500" />
               ) : (
-                <Spinner size="lg" className="text-[#FF4500] w-16 h-16" />
+                <Spinner size="lg" className="text-[#FF4500] w-12 h-12" />
               )}
             </div>
           )}
         </div>
 
-        <div className="mb-8">{getStatusContent()}</div>
+        <div className="mb-6">{getStatusContent()}</div>
 
         {/* Wave Visualizer - only show when recording or paused */}
         {(isRecording || isPaused) && !isProcessing && (

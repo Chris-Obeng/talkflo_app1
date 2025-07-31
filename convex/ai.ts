@@ -66,6 +66,62 @@ export const generateContent = action({
   },
 });
 
+export const rewriteContent = action({
+  args: {
+    noteId: v.id("notes"),
+    instructions: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.notes.internalSetStatus, { id: args.noteId, status: "generating" });
+
+    try {
+      const note = await ctx.runQuery(internal.notes.internalGet, { id: args.noteId });
+      if (!note) {
+        throw new Error("Note not found");
+      }
+
+      const transcript = note.transcript;
+      if (!transcript) {
+        throw new Error("Note has no original transcript to rewrite from.");
+      }
+
+      const systemContent = "You are a helpful writing assistant. Your task is to rewrite the provided transcript according to the user's specific instructions. Maintain the core information while adapting the style, tone, or format as requested. The output should be clean, well-formatted plain text. Do not use markdown syntax like # or *.";
+      const userContent = `Please rewrite the following transcript according to these instructions: "${args.instructions}"\n\nOriginal transcript:\n---\n${transcript}`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemContent },
+          { role: "user", content: userContent },
+        ],
+      });
+
+      const newContent = response.choices[0].message.content;
+
+      if (!newContent) {
+        throw new Error("OpenAI returned empty content.");
+      }
+
+      await ctx.runMutation(internal.ai.updateNoteContent, {
+        noteId: args.noteId,
+        newContent: newContent,
+      });
+
+    } catch (error) {
+      await ctx.runMutation(internal.notes.internalSetStatus, { id: args.noteId, status: "completed" });
+      
+      console.error("Failed to rewrite content with OpenAI:", error);
+      let errorMessage = "AI content rewrite failed.";
+      if (error instanceof OpenAI.APIError) {
+        errorMessage = `OpenAI Error: ${error.status} ${error.name} - ${error.message}`;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      throw new Error(errorMessage);
+    }
+  },
+});
+
 export const updateNoteContent = internalMutation({
     args: {
         noteId: v.id("notes"),

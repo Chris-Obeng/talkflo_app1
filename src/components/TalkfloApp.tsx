@@ -12,7 +12,7 @@ import { SelectionActionBar } from "./SelectionActionBar";
 import { ViewToggle, type ViewMode } from "./ViewToggle";
 import type { Id, Doc } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
-import { FolderPlus } from "lucide-react";
+import { FolderKanban } from "lucide-react";
 import { FloatingUploadButton } from "./FloatingUploadButton";
 import { Spinner } from "./ui/ios-spinner";
 
@@ -87,19 +87,19 @@ export function TalkfloApp() {
 
   if (loggedInUser === undefined || folders === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-stone-100 to-stone-50">
         <Spinner size="lg" className="text-primary w-16 h-16" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-stone-100 to-stone-50 flex flex-col">
       <Header user={loggedInUser} />
       
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-normal text-gray-800 mb-3 sm:mb-4 tracking-wide heading">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium text-gray-700 mb-3 sm:mb-4 tracking-normal">
             Talkflo
             <span className="block w-12 sm:w-16 h-1 bg-primary rounded-full mt-2 sm:mt-3 mx-auto"></span>
           </h1>
@@ -134,13 +134,13 @@ export function TalkfloApp() {
           viewMode={viewMode}
           actionButtons={
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowManageFolders(true)}
-                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-medium bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 transition-all shadow-sm hover:shadow-md"
+                  className="inline-flex items-center justify-center font-medium text-gray-600 transition-all"
                   title="Manage Folders"
                 >
-                  <FolderPlus className="w-4 h-4" />
+                  <FolderKanban className="w-5 h-5" />
                 </button>
                 <FloatingUploadButton folderId={selectedFolder === "all" ? undefined : selectedFolder} />
               </div>

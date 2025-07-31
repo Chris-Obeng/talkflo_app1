@@ -44,7 +44,7 @@ export function FloatingUploadButton({ folderId }: FloatingUploadButtonProps) {
       audio.onloadedmetadata = async () => {
         const duration = audio.duration;
         URL.revokeObjectURL(audio.src); // Clean up
-        
+
         await createRecording({ audioData: storageId, duration, folderId });
         toast.success("Upload complete! Processing your audio...");
       };
@@ -70,10 +70,10 @@ export function FloatingUploadButton({ folderId }: FloatingUploadButtonProps) {
       />
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="inline-flex items-center justify-center w-8 h-8 rounded-lg font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all shadow-sm hover:shadow-md"
+        className="inline-flex items-center justify-center font-medium text-orange-600 transition-all"
         title="Upload Audio"
       >
-        <Upload className="w-4 h-4" />
+        <Upload className="w-5 h-5" />
       </button>
     </>
   );
