@@ -20,7 +20,7 @@ export function FolderTabs({ folders, selectedFolder, onSelectFolder }: FolderTa
           onClick={() => onSelectFolder("all")}
           className={`flex-shrink-0 px-4 py-2 rounded-full font-medium transition-all button-text ${
             selectedFolder === "all"
-              ? 'bg-[#FF4500] text-white shadow-md'
+              ? 'bg-orange-500 text-white shadow-md'
               : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
           }`}
         >
@@ -32,7 +32,7 @@ export function FolderTabs({ folders, selectedFolder, onSelectFolder }: FolderTa
             onClick={() => onSelectFolder(folder._id)}
             className={`flex-shrink-0 px-4 py-2 rounded-full font-medium transition-all button-text ${
               selectedFolder === folder._id
-                ? 'bg-[#FF4500] text-white shadow-md'
+                ? 'bg-orange-500 text-white shadow-md'
                 : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
             }`}
           >
