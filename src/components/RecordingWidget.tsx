@@ -106,15 +106,15 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
           const value = dataArray[index] / 255;
 
           // Smoothed base value
-          const smoothedValue = (prevFrequencyData[i] || 0) * 0.7 + value * 0.3;
+          const smoothedValue = (prevFrequencyData[i] || 0) * 0.6 + value * 0.4;
 
           // Create a complex, traveling wave effect
-          const time = Date.now() * 0.006;
+          const time = Date.now() * 0.008;
           const wave1 = Math.sin(i * 0.1 - time) * 0.1;
           const wave2 = Math.sin(i * 0.05 + time * 0.5) * 0.05;
 
           // Make wave intensity dependent on overall volume
-          const waveIntensity = Math.pow(overallVolume, 1.5);
+          const waveIntensity = Math.pow(overallVolume, 1.2);
 
           const finalValue = smoothedValue + (wave1 + wave2) * waveIntensity;
           newFrequencyData.push(Math.min(1, Math.max(0.02, finalValue)));
@@ -142,7 +142,7 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
 
       // Configure analyser for better frequency visualization
       analyser.fftSize = 512; // Increased for better frequency resolution
-      analyser.smoothingTimeConstant = 0.8;
+      analyser.smoothingTimeConstant = 0.6;
       analyser.minDecibels = -90;
       analyser.maxDecibels = -10;
 
