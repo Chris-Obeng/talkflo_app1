@@ -35,8 +35,8 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
   const [isPaused, setIsPaused] = useState(false);
   const [duration, setDuration] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "processing" | "failed">("idle");
   const [recordingId, setRecordingId] = useState<Id<"recordings"> | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const [frequencyData, setFrequencyData] = useState<number[]>(new Array(150).fill(0));
 
@@ -57,7 +57,6 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
 
   useEffect(() => {
     if (recordingStatus?.status === "completed" || recordingStatus?.status === "failed") {
-      toast.success("Processing complete!");
       setTimeout(() => {
         onClose();
       }, 1500);
@@ -110,12 +109,12 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
           const smoothedValue = (prevFrequencyData[i] || 0) * 0.7 + value * 0.3;
 
           // Create a complex, traveling wave effect
-          const time = Date.now() * 0.003;
+          const time = Date.now() * 0.006;
           const wave1 = Math.sin(i * 0.1 - time) * 0.1;
           const wave2 = Math.sin(i * 0.05 + time * 0.5) * 0.05;
 
           // Make wave intensity dependent on overall volume
-          const waveIntensity = Math.pow(overallVolume, 2);
+          const waveIntensity = Math.pow(overallVolume, 1.5);
 
           const finalValue = smoothedValue + (wave1 + wave2) * waveIntensity;
           newFrequencyData.push(Math.min(1, Math.max(0.02, finalValue)));
@@ -164,8 +163,6 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
       setIsRecording(true);
       setIsPaused(false);
       setDuration(0);
-      setIsInitializing(false);
-
       intervalRef.current = setInterval(() => {
         setDuration(prev => prev + 1);
       }, 1000);
@@ -174,7 +171,6 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
     } catch (error) {
       console.error("Error starting recording:", error);
       toast.error("Failed to start recording. Please check microphone permissions.");
-      setIsInitializing(false);
     }
   };
 
@@ -199,6 +195,7 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
   const stopRecording = async () => {
     if (!mediaRecorderRef.current) return;
     setIsProcessing(true);
+    setUploadStatus("uploading");
 
     mediaRecorderRef.current.stop();
     setIsRecording(false);
@@ -221,6 +218,7 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
 
         if (!uploadResponse.ok) throw new Error("Failed to upload audio");
 
+        setUploadStatus("processing");
         const { storageId } = await uploadResponse.json();
         const newRecordingId = await createRecording({
           audioData: storageId,
@@ -229,10 +227,10 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
           noteIdToAppend: noteToAppendTo ? noteToAppendTo._id : undefined,
         });
         setRecordingId(newRecordingId);
-        toast.success("Recording saved! Processing...");
       } catch (error) {
         console.error("Error saving recording:", error);
         toast.error("Failed to save recording");
+        setUploadStatus("failed");
         setIsProcessing(false);
       } finally {
         if (streamRef.current) {
@@ -335,35 +333,34 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
 
       <div className="relative w-full max-w-md sm:max-w-lg">
         {/* Main Recording Card */}
-        <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-600 rounded-2xl sm:rounded-[32px] shadow-2xl px-4 sm:px-8 pt-6 sm:pt-10 pb-4 sm:pb-6 w-full min-h-[200px] sm:min-h-[260px] relative">
+        <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-600 rounded-2xl sm:rounded-[32px] shadow-2xl px-4 sm:px-8 pt-2 sm:pt-4 pb-4 sm:pb-6 w-full min-h-[200px] sm:min-h-[260px] relative">
 
           {/* Timer Display */}
-          <div className="text-center">
+          <div className="text-center mb-1 sm:mb-2">
             {isProcessing ? (
               <div className="flex flex-col items-center">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 flex items-center justify-center">
-                  {recordingStatus?.status === 'completed' ? (
+                  {uploadStatus === 'processing' && recordingStatus?.status === 'completed' ? (
                     <CheckCircle className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
                   ) : (
                     <Spinner size="lg" className="text-white w-8 h-8 sm:w-12 sm:h-12" />
                   )}
                 </div>
                 <p className="text-base sm:text-lg font-semibold text-white mb-1">
-                  {recordingStatus?.status === 'failed' ? 'Processing Failed' : 'Processing...'}
+                  {uploadStatus === 'uploading' && 'Uploading...'}
+                  {uploadStatus === 'processing' && (recordingStatus?.status === 'failed' ? 'Processing Failed' : 'Processing...')}
+                  {uploadStatus === 'failed' && 'Upload Failed'}
                 </p>
                 <p className="text-xs sm:text-sm text-white/80 px-2">
-                  {recordingStatus?.status === 'processing' && 'Transcribing and enhancing your note'}
-                  {recordingStatus?.status === 'completed' && 'Note created successfully!'}
-                  {recordingStatus?.status === 'failed' && 'Something went wrong. Please try again.'}
+                  {uploadStatus === 'uploading' && 'Please wait...'}
+                  {uploadStatus === 'processing' && recordingStatus?.status === 'processing' && 'Transcribing and enhancing your note'}
+                  {uploadStatus === 'processing' && recordingStatus?.status === 'completed' && 'Note created successfully!'}
+                  {uploadStatus === 'processing' && recordingStatus?.status === 'failed' && 'Something went wrong. Please try again.'}
+                  {uploadStatus === 'failed' && 'Your recording could not be uploaded.'}
                 </p>
               </div>
-            ) : isInitializing ? (
-              <div>
-                <p className="text-base sm:text-lg font-semibold text-white mb-1">Starting recording...</p>
-                <p className="text-xs sm:text-sm text-white/80">Please allow microphone access</p>
-              </div>
             ) : (
-              <div className="text-3xl sm:text-5xl font-bold text-white tracking-wider">
+              <div className="text-4xl font-bold text-white tracking-wider">
                 {formatTime(duration)}
               </div>
             )}
@@ -371,11 +368,11 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
 
           {/* Wave Visualizer */}
           {(isRecording || isPaused) && !isProcessing && (
-            <div className="flex items-end justify-center space-x-[0.5px] sm:space-x-[1px] h-12 sm:h-20 mt-4 sm:mt-6 mb-3 sm:mb-4">
+            <div className="flex items-end justify-center space-x-[0.5px] sm:space-x-[1px] h-12 sm:h-20 sm:mb-3">
               {frequencyData.slice(0, isMobile ? 120 : 150).map((amplitude, index) => {
                 // Responsive height scaling
                 const baseHeight = 4;
-                const maxHeight = isMobile ? 35 : 55;
+                const maxHeight = isMobile ? 40 : 65;
                 const height = baseHeight + (amplitude * (maxHeight - baseHeight));
                 const opacity = isPaused ? 0.5 : Math.max(0.7, amplitude + 0.2);
 
@@ -396,36 +393,44 @@ export function RecordingWidget({ onClose, folderId, noteToAppendTo }: Recording
             </div>
           )}
 
-          {/* Bottom Row - Reset and Close buttons */}
+          {/* Bottom Controls */}
           <div className="absolute bottom-3 sm:bottom-6 left-4 sm:left-8 right-4 sm:right-8 flex justify-between items-center">
-            {(isRecording || isPaused) && !isProcessing ? (
-              <button onClick={resetRecording} className="text-white/90 hover:text-white active:text-white/70 transition-colors p-2 sm:p-1 touch-manipulation">
-                <RotateCcw className="w-5 h-5 sm:w-7 sm:h-7 stroke-[1.5]" />
+            {/* Left Item: Pause/Resume */}
+            <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+              {(isRecording || isPaused) && !isProcessing && (
+                <button
+                  onClick={isPaused ? resumeRecording : pauseRecording}
+                  className="w-full h-full flex items-center justify-center text-white/90 hover:text-white rounded-full hover:bg-white/10 transition-colors touch-manipulation"
+                >
+                  {isPaused ? (
+                    <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current" />
+                  ) : (
+                    <Pause className="w-6 h-6 sm:w-7 sm:h-7 fill-current" />
+                  )}
+                </button>
+              )}
+            </div>
+
+            {/* Center Item: Stop */}
+            <div>
+              {(isRecording || isPaused) && !isProcessing && (
+                <button
+                  onClick={stopRecording}
+                  className="bg-white hover:bg-gray-200 text-orange-600 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center shadow-lg transition-colors touch-manipulation"
+                >
+                  <Square className="w-6 h-6 sm:w-8 sm:h-8 fill-current" />
+                </button>
+              )}
+            </div>
+
+            {/* Right Item: Close */}
+            <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+              <button onClick={handleCancelClick} className="w-full h-full flex items-center justify-center text-white/90 hover:text-white rounded-full hover:bg-white/10 transition-colors touch-manipulation">
+                <X className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2]" />
               </button>
-            ) : (
-              <div className="w-9 h-9 sm:w-9 sm:h-9" />
-            )}
-            <button onClick={handleCancelClick} className="text-white/90 hover:text-white active:text-white/70 transition-colors p-2 sm:p-1 touch-manipulation">
-              <X className="w-5 h-5 sm:w-7 sm:h-7 stroke-[1.5]" />
-            </button>
+            </div>
           </div>
         </div>
-
-        {/* Bottom Action Button - positioned outside and below the card */}
-        {(isRecording || isPaused) && !isProcessing && (
-          <div className="absolute -bottom-4 sm:-bottom-6 left-1/2 transform -translate-x-1/2">
-            <button
-              onClick={isPaused ? resumeRecording : stopRecording}
-              className="bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white w-16 h-16 sm:w-20 sm:h-20 rounded-full transition-all duration-200 font-medium flex items-center justify-center shadow-lg border-4 border-white touch-manipulation"
-            >
-              {isPaused ? (
-                <Play className="w-6 h-6 sm:w-8 sm:h-8 fill-current ml-1" />
-              ) : (
-                <Square className="w-5 h-5 sm:w-7 sm:h-7 fill-current" />
-              )}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
