@@ -12,10 +12,11 @@ import { SelectionActionBar } from "./SelectionActionBar";
 import { ViewToggle, type ViewMode } from "./ViewToggle";
 import type { Id, Doc } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
-import { FolderKanban, User, Settings } from "lucide-react";
+import { FolderKanban, User, Settings, Crown } from "lucide-react";
 import { FloatingUploadButton } from "./FloatingUploadButton";
 import { Spinner } from "./ui/ios-spinner";
 import { SignOutButton } from "../SignOutButton";
+import SubscriptionModal from "./SubscriptionModal";
 
 export function TalkfloApp() {
   const [selectedFolder, setSelectedFolder] = useState<Id<"folders"> | "all">("all");
@@ -27,16 +28,21 @@ export function TalkfloApp() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const loggedInUser = useQuery(api.auth.loggedInUser);
+  const subscription = useQuery(api.dodoPayments.getSubscription);
   const folders = useQuery(api.folders.list);
   const notes = useQuery(api.notes.list, {
     folderId: selectedFolder === "all" ? undefined : selectedFolder,
     search: searchQuery || undefined
   });
   const deleteBatch = useMutation(api.notes.removeBatch);
+
+  // Check if user has an active subscription
+  const hasActiveSubscription = subscription?.status === "active" && subscription?.endsOn > Date.now();
 
   useEffect(() => {
     if (showRecording) {
@@ -101,6 +107,15 @@ export function TalkfloApp() {
     setNoteToAppendTo(null);
   };
 
+  const handleOpenSubscriptionModal = () => {
+    setShowSubscriptionModal(true);
+    setIsProfileOpen(false);
+  };
+
+  const handleCloseSubscriptionModal = () => {
+    setShowSubscriptionModal(false);
+  };
+
   if (loggedInUser === undefined || folders === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-stone-100 to-stone-50">
@@ -133,6 +148,12 @@ export function TalkfloApp() {
                 <div className="p-3 border-b border-gray-200 mb-2">
                   <p className="font-semibold text-gray-800 truncate ui-text">{loggedInUser?.name || 'User'}</p>
                   <p className="text-sm text-gray-500 truncate ui-text">{loggedInUser?.email}</p>
+                  {hasActiveSubscription && (
+                    <div className="flex items-center mt-2">
+                      <Crown className="w-4 h-4 text-orange-500 mr-1" />
+                      <span className="text-xs text-orange-600 font-medium">Premium Member</span>
+                    </div>
+                  )}
                 </div>
                 <div className="p-1">
                   <Link
@@ -144,9 +165,12 @@ export function TalkfloApp() {
                   </Link>
                 </div>
                 <div className="p-1">
-                  <button className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg button-text">
+                  <button 
+                    onClick={handleOpenSubscriptionModal}
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg button-text"
+                  >
                     <User className="w-5 h-5 text-gray-500" />
-                    <span>Subscription</span>
+                    <span>{hasActiveSubscription ? "Manage Subscription" : "Subscription"}</span>
                   </button>
                 </div>
                 <div className="p-1 mt-1">
@@ -156,9 +180,19 @@ export function TalkfloApp() {
             )}
           </div>
 
-          <button className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">
-            Upgrade
-          </button>
+          {hasActiveSubscription ? (
+            <div className="flex items-center space-x-2">
+              <Crown className="w-5 h-5 text-orange-500" />
+              <span className="text-sm font-medium text-orange-600">Premium</span>
+            </div>
+          ) : (
+            <button 
+              onClick={handleOpenSubscriptionModal}
+              className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+            >
+              Upgrade
+            </button>
+          )}
         </div>
       </div>
 
@@ -171,6 +205,18 @@ export function TalkfloApp() {
           <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 ui-text">
             Record your thoughts and let AI transform them into organized notes
           </p>
+          {!hasActiveSubscription && (
+            <div className="mb-6">
+              <button
+                onClick={handleOpenSubscriptionModal}
+                className="inline-flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full font-medium transition-colors"
+              >
+                <Crown className="w-5 h-5" />
+                <span>Upgrade to Premium</span>
+              </button>
+              <p className="text-sm text-gray-500 mt-2">Unlock unlimited recordings and AI features</p>
+            </div>
+          )}
         </div>
 
         {showRecording && (
@@ -229,28 +275,41 @@ export function TalkfloApp() {
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-700 text-white rounded-2xl p-6 w-full max-w-sm text-center">
-            <h3 className="text-lg font-medium mb-6">
-              Delete {selectedNotes.length} note{selectedNotes.length > 1 ? 's' : ''}?
-            </h3>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={handleConfirmDelete}
-                className="bg-red-500 hover:bg-red-600 active:bg-red-600 text-white px-6 py-3 sm:py-2 rounded-full text-sm font-medium transition-colors touch-manipulation"
-              >
-                Yes, delete
-              </button>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={handleCancelDelete}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Delete Notes</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete {selectedNotes.length} note{selectedNotes.length !== 1 ? 's' : ''}? This action cannot be undone.
+            </p>
+            <div className="flex space-x-3">
               <button
                 onClick={handleCancelDelete}
-                className="bg-transparent border border-gray-400 text-white hover:bg-gray-600 active:bg-gray-600 px-6 py-3 sm:py-2 rounded-full text-sm font-medium transition-colors touch-manipulation"
+                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
               >
                 Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+              >
+                Delete
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Subscription Modal */}
+      <SubscriptionModal 
+        isOpen={showSubscriptionModal} 
+        onClose={handleCloseSubscriptionModal} 
+      />
     </div>
   );
 }

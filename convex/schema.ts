@@ -51,6 +51,13 @@ const applicationTables = {
     writingStyle: v.optional(v.string()),
     writingLength: v.optional(v.union(v.literal("short"), v.literal("medium"), v.literal("long"))),
   }).index("by_user", ["userId"]),
+
+  subscriptions: defineTable({
+    userId: v.string(),
+    subscriptionId: v.string(),
+    endsOn: v.number(),
+    status: v.optional(v.union(v.literal("active"), v.literal("cancelled"), v.literal("expired"))),
+  }).index("by_user_id", ["userId"]),
 };
 
 export default defineSchema({

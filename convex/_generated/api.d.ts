@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
+import type * as dodoPayments from "../dodoPayments.js";
 import type * as folders from "../folders.js";
 import type * as http from "../http.js";
 import type * as notes from "../notes.js";
@@ -35,6 +36,7 @@ import type * as storage from "../storage.js";
 declare const fullApi: ApiFromModules<{
   ai: typeof ai;
   auth: typeof auth;
+  dodoPayments: typeof dodoPayments;
   folders: typeof folders;
   http: typeof http;
   notes: typeof notes;
